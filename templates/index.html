@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omegle-Style Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: white;
+            text-align: center;
+        }
+        #chat-container {
+            width: 50%;
+            margin: auto;
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
+        }
+        #chat {
+            height: 300px;
+            overflow-y: auto;
+            background: #444;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: left;
+        }
+        input, button {
+            width: 80%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            width: 85%;
+            background-color: #0d6efd;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>Omegle-Style Chat</h2>
+    <div id="chat-container">
+        <div id="chat"></div>
+        <input id="message" type="text" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        var socket = io();
+
+        socket.on("message", function(data) {
+            var chat = document.getElementById("chat");
+            var p = document.createElement("p");
+            p.innerHTML = `<strong>${data.timestamp}</strong> - ${data.message}`;
+            chat.appendChild(p);
+            chat.scrollTop = chat.scrollHeight;
+        });
+
+        function sendMessage() {
+            var msg = document.getElementById("message").value;
+            if (msg.trim() !== "") {
+                socket.emit("message", msg);
+                document.getElementById("message").value = "";
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>
