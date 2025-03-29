@@ -44,37 +44,33 @@
     </style>
 </head>
 <body>
-    <h2>Omegle-Style Chat</h2>
     <div id="chat-container">
-        <div id="chat"></div>
-        <input id="message" type="text" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+        <h2>Chat Room</h2>
+        <input type="text" id="username" placeholder="Enter Username">
+        <input type="text" id="message" placeholder="Enter Message">
         <button onclick="sendMessage()">Send</button>
+        <div id="chat"></div>
     </div>
 
     <script>
-        var socket = io();
-
-        socket.on("message", function(data) {
-            var chat = document.getElementById("chat");
-            var p = document.createElement("p");
-            p.innerHTML = `<strong>${data.timestamp}</strong> - ${data.message}`;
-            chat.appendChild(p);
-            chat.scrollTop = chat.scrollHeight;
-        });
+        var socket = io.connect("http://127.0.0.1:5000"); // Change this for public hosting
 
         function sendMessage() {
-            var msg = document.getElementById("message").value;
-            if (msg.trim() !== "") {
-                socket.emit("message", msg);
-                document.getElementById("message").value = "";
+            var username = document.getElementById("username").value;
+            var message = document.getElementById("message").value;
+
+            if (username && message) {
+                socket.send({ "username": username, "message": message });
+                document.getElementById("message").value = ""; // Clear input
+            } else {
+                alert("Please enter a username and a message.");
             }
         }
 
-        function handleKeyPress(event) {
-            if (event.key === "Enter") {
-                sendMessage();
-            }
-        }
+        socket.on("message", function(data) {
+            var chatBox = document.getElementById("chat");
+            chatBox.innerHTML += `<p><strong>${data.username}:</strong> ${data.message}</p>`;
+        });
     </script>
 </body>
 </html>
